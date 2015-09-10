@@ -1,4 +1,7 @@
 from socket import *
+buffer_size=1024
+def chunkstring(string, length):
+	return [string[0+i:length+i] for i in range(0, len(string), length)]
 def riffle_shuffle(sentence):
 	lis_=sentence.split()
 	len2=len(lis_)/2
@@ -19,7 +22,23 @@ print 'The server is ready to receive'
 while 1:
 	connectionSocket, addr = serverSocket.accept()
 	print addr
-	sentence = connectionSocket.recv(1024)
-	capitalizedSentence = riffle_shuffle(sentence)
-	connectionSocket.send(capitalizedSentence)
+	length = connectionSocket.recv(buffer_size)
+	#print length
+	str_=""
+	for k in range(0,int(length)):
+		mod_str = connectionSocket.recv(buffer_size)
+	#	print mod_str
+		str_=str_+mod_str
+	#str_=rest+str_
+	#print str_
+	riffle_sent = riffle_shuffle(str_)
+	#print riffle_sent
+	riffled_list=chunkstring(riffle_sent,buffer_size)
+	y=len(riffled_list)
+	#print y
+	z="0"*(buffer_size-len(str(y)))+str(y)
+	connectionSocket.send(z)
+	#print y
+	for riffle in riffled_list:
+		connectionSocket.send(riffle)
 	connectionSocket.close()
